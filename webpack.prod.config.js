@@ -1,20 +1,22 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
-    mode:'development',
+    mode:'production',
     entry: './src/index.js',
     output: {
-        filename: 'index.js',
+        filename: 'index.[hash].js',
         path: path.resolve(__dirname, 'dist')
     },
-    devtool: 'inline-source-map',
     module:{
         rules:[
             {
                 test:/\.(c|sa|sc)ss$/,
                 use:[
-                    'style-loader',
+                    MiniCssExtractPlugin.loader,
                     {
                         loader:'css-loader',
                         options:{
@@ -43,9 +45,17 @@ module.exports = {
         ]
     },
     plugins:[
+        new MiniCssExtractPlugin({
+            filename:'[name].[hash].css',
+            chunkFilename:'[id].css'
+        }),
         new HtmlWebpackPlugin({  // Also generate a test.html
             filename: 'index.html', //默认：index.html
             template: path.resolve(__dirname, 'index.html') //模板页面
-        })
+        }),
+        new CleanWebpackPlugin()
     ],
+    optimization:{
+        minimizer:[new OptimizeCssAssetsWebpackPlugin({})]
+    }
 }
