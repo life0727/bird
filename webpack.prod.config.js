@@ -40,7 +40,15 @@ module.exports = {
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
-                use: ['file-loader']
+                use: [ {
+                    loader: 'file-loader',
+                    options: {
+                        name: "img/[name].[hash:5].[ext]",
+                        //limit: 1024, // size <= 1kib
+                        // outputPath: "img",
+                        //publicPath: "../"
+                    }
+                }]
             }
         ]
     },
