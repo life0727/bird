@@ -1,21 +1,28 @@
 import canvas from './canvas'
+import userData from '../userData/data'
 
 class backGround extends canvas{
     constructor(){
         super()
-        this.speed = 1
+        this.speed = 1;
+        this.width = super.resources.bg_day.width;//背景图的宽
+        this.height = super.resources.bg_day.height;//背景图的高
+        this.x = 0
+    }
+    run(){
+        this.x -= this.speed;
+        if(this.x <= -this.canvas.width) this.x = 0;
     }
     render(){
-        const skyHeight = this.canvas.height*0.75 - 396;
-        const landHeight = this.canvas.height -  skyHeight - this.resources.bg_day.height;
+        const skyHeight = this.canvas.height * userData.ScreenRadio - 396;
 
-        this.ctx.drawImage(this.resources.bg_day,0,skyHeight);
+        this.ctx.drawImage(this.resources.bg_day,this.x,skyHeight);
+        this.ctx.drawImage(this.resources.bg_day,this.x + this.width,skyHeight);
+        this.ctx.drawImage(this.resources.bg_day,this.x + this.width * 2,skyHeight);
 
         this.ctx.fillStyle = "#4EC0CA";//sky
         this.ctx.fillRect(0,0,this.canvas.width,skyHeight)
 
-        this.ctx.fillStyle = "#5EE270";//land
-        this.ctx.fillRect(0,skyHeight + this.resources.bg_day.height,this.canvas.width,landHeight)
     }
 }
 

@@ -1,15 +1,18 @@
 {
     "images":[
         {"name":"bg_day","width":"288","height":"512"},
-        {"name":"bg_night","width":"48px","height":"48px"},
-        {"name":"bird0_0","width":"48px","height":"48px"},
-        {"name":"bird0_1","width":"48px","height":"48px"},
-        {"name":"bird0_2","width":"48px","height":"48px"},
-        {"name":"bird1_0","width":"48px","height":"48px"},
-        {"name":"bird1_1","width":"48px","height":"48px"},
-        {"name":"bird1_2","width":"48px","height":"48px"},
-        {"name":"bird2_0","width":"48px","height":"48px"},
-        {"name":"bird2_1","width":"48px","height":"48px"},
-        {"name":"bird2_2","width":"48px","height":"48px"}
+        {"name":"bg_night","width":"48","height":"48"},
+        {"name":"bird0_0","width":"48","height":"48"},
+        {"name":"bird0_1","width":"48","height":"48"},
+        {"name":"bird0_2","width":"48","height":"48"},
+        {"name":"bird1_0","width":"48","height":"48"},
+        {"name":"bird1_1","width":"48","height":"48"},
+        {"name":"bird1_2","width":"48","height":"48"},
+        {"name":"bird2_0","width":"48","height":"48"},
+        {"name":"bird2_1","width":"48","height":"48"},
+        {"name":"bird2_2","width":"48","height":"48"},
+        {"name":"land","width":"336","height":"112"},
+        {"name":"pipe_down","width":"52","height":"320"},
+        {"name":"pipe_up","width":"52","height":"320"}
     ]
 }
