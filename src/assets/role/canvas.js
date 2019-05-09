@@ -2,6 +2,7 @@ class canvas {
     constructor(){
         this.canvas = document.querySelector('canvas');
         this.ctx = this.canvas.getContext('2d'); 
+        
         //this.resources = {} //资源对象
     }
     clickEvent(){
@@ -13,6 +14,7 @@ class canvas {
     }
 }
 canvas.prototype.resources = {}; //资源对象
+canvas.prototype.frameNum = [0]; //帧编号
 canvas.prototype.pipeArr = [];  //管子数组
 
 export default canvas
