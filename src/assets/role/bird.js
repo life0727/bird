@@ -14,6 +14,7 @@ class bird extends canvas{
         if(this.wingIndex > 2) this.wingIndex = 0;
     }
     render(){
+        
         const step = [this.birdArr[this.wingIndex]][0]
  
         this.ctx.drawImage(super.resources[step],this.x,80);
