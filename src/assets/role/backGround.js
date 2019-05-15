@@ -14,7 +14,7 @@ class backGround extends canvas{
         if(this.x <= -this.canvas.width) this.x = 0;
     }
     render(){
-        const skyHeight = this.canvas.height * userData.ScreenRadio - 396;
+        const skyHeight = this.canvas.height * userData.ScreenRadio - 396;//背景图天空到地面的高度
 
         this.ctx.drawImage(this.resources.bg_day,this.x,skyHeight);
         this.ctx.drawImage(this.resources.bg_day,this.x + this.width,skyHeight);

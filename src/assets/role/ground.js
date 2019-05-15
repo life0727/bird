@@ -12,6 +12,9 @@ class ground extends canvas{
     run(){
         this.x -= this.speed;
         if(this.x <= -this.canvas.width) this.x = 0;
+
+        //碰撞监测 用地面监测小鸟
+        if(this.canvas.height * userData.ScreenRadio < super.AABB.bottom) this.msg.isShoudown = true;
     }
     render(){
         const landHeight = this.canvas.height -  this.canvas.height * userData.ScreenRadio - this.height;

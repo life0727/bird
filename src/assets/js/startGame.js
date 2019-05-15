@@ -18,7 +18,7 @@ class startGame extends canvas{
         this.bird = new bird();
         this.timer = setInterval(()=>{
             this.util.clear();
-            this.frameNum[0] ++;
+            super.msg.frameNum ++;
             
             this.background.render();
             this.background.run();
@@ -26,18 +26,21 @@ class startGame extends canvas{
             this.bird.render();
             this.bird.run();
 
-            this.frameNum % userData.frequency == 0 && new pipe();           
+            super.msg.frameNum % userData.frequency == 0 && new pipe();       
+    
             super.pipeArr.forEach(i => {
                  i.run(); 
                  i.render();
             })
 
+            this.util.score();
+
             this.ground.render();
             this.ground.run();
             
-    
+            if(this.msg.isShoudown) clearInterval(this.timer);
             
-            this.ctx.fillText(this.frameNum[0],10,10);
+            this.ctx.fillText(super.msg.frameNum,10,10);
         },userData.FrameNumber)
     }
 }

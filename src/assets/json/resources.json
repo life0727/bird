@@ -13,6 +13,16 @@
         {"name":"bird2_2","width":"48","height":"48"},
         {"name":"land","width":"336","height":"112"},
         {"name":"pipe_down","width":"52","height":"320"},
-        {"name":"pipe_up","width":"52","height":"320"}
+        {"name":"pipe_up","width":"52","height":"320"},
+        {"name":"num0","width":"24","height":"44"},
+        {"name":"num1","width":"24","height":"44"},
+        {"name":"num2","width":"24","height":"44"},
+        {"name":"num3","width":"24","height":"44"},
+        {"name":"num4","width":"24","height":"44"},
+        {"name":"num5","width":"24","height":"44"},
+        {"name":"num6","width":"24","height":"44"},
+        {"name":"num7","width":"24","height":"44"},
+        {"name":"num8","width":"24","height":"44"},
+        {"name":"num9","width":"24","height":"44"}
     ]
 }
