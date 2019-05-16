@@ -25,6 +25,11 @@ class ground extends canvas{
 
         this.ctx.fillStyle = "#DED895";//ground
         this.ctx.fillRect(0,this.canvas.height * userData.ScreenRadio + this.height - 1,this.canvas.width,landHeight + 1)
+
+        this.ctx.fillStyle = "#666";//author
+        this.ctx.font = "12px serif"
+        this.ctx.fillText('author by 傅全猛',this.canvas.width - 100,this.canvas.height - 20)
+
     }
 }
 

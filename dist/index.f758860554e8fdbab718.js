@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -105,8 +105,6 @@ var canvas = function () {
 
         this.canvas = document.querySelector('canvas');
         this.ctx = this.canvas.getContext('2d');
-
-        //this.resources = {} //资源对象
     }
 
     _createClass(canvas, [{
@@ -114,11 +112,22 @@ var canvas = function () {
         value: function clickEvent() {
             var _this = this;
 
-            this.canvas.onclick = function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                _this.toUp();
+            this.canvas.onclick = function () {
+                return _this.toUp();
             };
+            //this.canvas.onkeydown = (e) => this.toUp(e)
+            window.addEventListener('keydown', function (e) {
+                return e.code == 'Space' && _this.toUp(e);
+            });
+        }
+    }, {
+        key: 'begin',
+        value: function begin() {
+            var _this2 = this;
+
+            window.addEventListener('keydown', function (e) {
+                return e.code == 'F10' && _this2.msg.isShoudown && _this2.start();
+            }); //CapsLock
         }
     }]);
 
@@ -126,8 +135,19 @@ var canvas = function () {
 }();
 
 canvas.prototype.resources = {}; //资源对象
-canvas.prototype.frameNum = [0]; //帧编号
+canvas.prototype.msg = { //canvas 信息
+    frameNum: 0, //帧编号
+    count: 0, //分数 
+    timer: null, //定时器
+    isShoudown: false //是否暂停定时器
+};
 canvas.prototype.pipeArr = []; //管子数组
+canvas.prototype.AABB = { //AABB盒
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0
+};
 
 exports.default = canvas;
 
@@ -146,7 +166,8 @@ var userData = {
     "ScreenRadio": 0.75, //画布屏幕上下占比
     "Gap": 100, //管子间的空隙  50 - 110之间 由易到难
     "frequency": 120, //管子出现的频率  100 - 150之间 由难到易
-    "toUpSize": 20 //点击小鸟后上升的高度参数 越大上升的越高
+    "toUpSize": 20, //点击小鸟后上升的帧数参数 越大上升的越高
+    "toUpHeightRadio": 0.4 //小鸟上升下落速度的参数 越大越快
 };
 
 exports.default = userData;
@@ -158,90 +179,15 @@ exports.default = userData;
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _canvas2 = __webpack_require__(0);
-
-var _canvas3 = _interopRequireDefault(_canvas2);
-
-var _data = __webpack_require__(1);
-
-var _data2 = _interopRequireDefault(_data);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var backGround = function (_canvas) {
-    _inherits(backGround, _canvas);
-
-    function backGround() {
-        _classCallCheck(this, backGround);
-
-        var _this = _possibleConstructorReturn(this, (backGround.__proto__ || Object.getPrototypeOf(backGround)).call(this));
-
-        _this.speed = 1;
-        _this.width = _get(backGround.prototype.__proto__ || Object.getPrototypeOf(backGround.prototype), 'resources', _this).bg_day.width; //背景图的宽
-        _this.height = _get(backGround.prototype.__proto__ || Object.getPrototypeOf(backGround.prototype), 'resources', _this).bg_day.height; //背景图的高
-        _this.x = 0;
-        return _this;
-    }
-
-    _createClass(backGround, [{
-        key: 'run',
-        value: function run() {
-            this.x -= this.speed;
-            if (this.x <= -this.canvas.width) this.x = 0;
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var skyHeight = this.canvas.height * _data2.default.ScreenRadio - 396;
-
-            this.ctx.drawImage(this.resources.bg_day, this.x, skyHeight);
-            this.ctx.drawImage(this.resources.bg_day, this.x + this.width, skyHeight);
-            this.ctx.drawImage(this.resources.bg_day, this.x + this.width * 2, skyHeight);
-
-            this.ctx.fillStyle = "#4EC0CA"; //sky
-            this.ctx.fillRect(0, 0, this.canvas.width, skyHeight);
-        }
-    }]);
-
-    return backGround;
-}(_canvas3.default);
-
-exports.default = backGround;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _lodash = __webpack_require__(4);
+var _lodash = __webpack_require__(3);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-__webpack_require__(7);
+__webpack_require__(6);
 
-var _init = __webpack_require__(8);
+var _init = __webpack_require__(7);
 
 var _init2 = _interopRequireDefault(_init);
-
-var _backGround = __webpack_require__(2);
-
-var _backGround2 = _interopRequireDefault(_backGround);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -250,7 +196,7 @@ new _init2.default();
 // INIT.init();
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -17353,10 +17299,10 @@ new _init2.default();
   else {}
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(5), __webpack_require__(6)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(4), __webpack_require__(5)(module)))
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports) {
 
 var g;
@@ -17382,7 +17328,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -17410,13 +17356,13 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // extracted by mini-css-extract-plugin
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17430,7 +17376,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _startGame = __webpack_require__(9);
+var _startGame = __webpack_require__(8);
 
 var _startGame2 = _interopRequireDefault(_startGame);
 
@@ -17500,21 +17446,21 @@ var init = function (_canvas) {
 exports.default = init;
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+            value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _util = __webpack_require__(10);
+var _util = __webpack_require__(9);
 
 var _util2 = _interopRequireDefault(_util);
 
@@ -17526,7 +17472,7 @@ var _canvas2 = __webpack_require__(0);
 
 var _canvas3 = _interopRequireDefault(_canvas2);
 
-var _backGround = __webpack_require__(2);
+var _backGround = __webpack_require__(10);
 
 var _backGround2 = _interopRequireDefault(_backGround);
 
@@ -17551,57 +17497,69 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var startGame = function (_canvas) {
-    _inherits(startGame, _canvas);
+            _inherits(startGame, _canvas);
 
-    function startGame() {
-        _classCallCheck(this, startGame);
+            function startGame() {
+                        _classCallCheck(this, startGame);
 
-        var _this = _possibleConstructorReturn(this, (startGame.__proto__ || Object.getPrototypeOf(startGame)).call(this));
+                        var _this = _possibleConstructorReturn(this, (startGame.__proto__ || Object.getPrototypeOf(startGame)).call(this));
 
-        _this.start();
-        return _this;
-    }
+                        _this.begin(); //绑定事件
+                        _this.start();
+                        return _this;
+            }
 
-    _createClass(startGame, [{
-        key: 'start',
-        value: function start() {
-            var _this2 = this;
+            _createClass(startGame, [{
+                        key: 'start',
+                        value: function start() {
+                                    var _this2 = this;
 
-            this.background = new _backGround2.default();
-            this.ground = new _ground2.default();
-            this.util = new _util2.default();
-            this.bird = new _bird2.default();
-            this.timer = setInterval(function () {
-                _this2.util.clear();
-                _this2.frameNum[0]++;
+                                    this.util = new _util2.default();
+                                    this.util.clearSession();
 
-                _this2.background.render();
-                _this2.background.run();
+                                    this.background = new _backGround2.default();
+                                    this.ground = new _ground2.default();
+                                    this.bird = new _bird2.default();
 
-                _this2.bird.render();
-                _this2.bird.run();
+                                    _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'msg', this).timer = setInterval(function () {
+                                                _this2.util.clear();
 
-                _this2.frameNum % _data2.default.frequency == 0 && new _pipe2.default();
-                _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'pipeArr', _this2).forEach(function (i) {
-                    i.run();
-                    i.render();
-                });
+                                                _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'msg', _this2).frameNum++;
 
-                _this2.ground.render();
-                _this2.ground.run();
+                                                _this2.background.render();
+                                                _this2.background.run();
 
-                _this2.ctx.fillText(_this2.frameNum[0], 10, 10);
-            }, _data2.default.FrameNumber);
-        }
-    }]);
+                                                _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'msg', _this2).frameNum % _data2.default.frequency == 0 && new _pipe2.default();
 
-    return startGame;
+                                                _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'pipeArr', _this2).forEach(function (i) {
+                                                            i.run();
+                                                            i.render();
+                                                });
+
+                                                _this2.util.score();
+
+                                                _this2.ground.render();
+                                                _this2.ground.run();
+
+                                                _this2.bird.render();
+                                                _this2.bird.run();
+
+                                                if (_get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'msg', _this2).isShoudown) _this2.util.boom();
+
+                                                _this2.ctx.fillStyle = "#333";
+                                                _this2.ctx.font = "12px serif";
+                                                _this2.ctx.fillText('fps:' + 1000 / _data2.default.FrameNumber, 10, 10);
+                                    }, _data2.default.FrameNumber);
+                        }
+            }]);
+
+            return startGame;
 }(_canvas3.default);
 
 exports.default = startGame;
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17612,6 +17570,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
 var _canvas2 = __webpack_require__(0);
 
@@ -17625,23 +17585,79 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+//import init from './init.js'
+
 var util = function (_canvas) {
     _inherits(util, _canvas);
 
     function util() {
         _classCallCheck(this, util);
 
-        return _possibleConstructorReturn(this, (util.__proto__ || Object.getPrototypeOf(util)).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, (util.__proto__ || Object.getPrototypeOf(util)).call(this));
+
+        _this.boomGlobalAlpha = 0; //鸟爆炸时的透明度
+        _this.gameOverY = -_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', _this).text_game_over.height;
+        _this.gameOverX = _this.canvas.width / 2 - _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', _this).text_game_over.width / 2;
+        //super.clickEvent() //绑定事件
+        return _this;
     }
 
     _createClass(util, [{
         key: 'clear',
-
-        // constructor(){
-        //     super();
-        // }
         value: function clear() {
+            //清屏
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    }, {
+        key: 'score',
+        value: function score() {
+            //渲染分数
+            var score = _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).count.toString();
+            var numWidth = _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).num0.width + 10;
+            for (var i = 0; i < score.length; i++) {
+                this.ctx.drawImage(_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this)['num' + score[i]], this.canvas.width / 2 - numWidth * score.length / 2 + i * numWidth, 100);
+            }
+        }
+    }, {
+        key: 'boom',
+        value: function boom() {
+            //爆炸    
+            this.gameOverY += 55;
+
+            this.ctx.save();
+            this.boomGlobalAlpha += 0.1;
+
+            if (this.boomGlobalAlpha > 1) this.boomGlobalAlpha = 0, clearInterval(_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).timer);
+            this.ctx.globalAlpha = this.boomGlobalAlpha;
+            this.ctx.fillStyle = "white";
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.restore();
+
+            //爆炸用图 顺带 覆盖小鸟
+            //this.ctx.drawImage(super.resources.boom,super.AABB.left - super.resources.boom.width / 2 + 10,super.AABB.top - super.resources.boom.height / 2 + 10);
+            this.ctx.drawImage(_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).boom, 0, 0, 90, 100, _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'AABB', this).left - 45 + 20, _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'AABB', this).top - 50 + 10, 90, 100);
+
+            if (this.gameOverY > this.canvas.height / 2 - _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).text_game_over.height / 2) this.gameOverY = this.canvas.height / 2 - _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).text_game_over.height / 2;
+
+            this.ctx.drawImage(_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).text_game_over, this.gameOverX, this.gameOverY);
+
+            this.ctx.fillStyle = 'yellow';
+            this.ctx.font = "38px serif";
+            this.ctx.fillText('按f10重开', this.gameOverX + 10, this.gameOverY + _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).text_game_over.height + 38);
+        }
+    }, {
+        key: 'clearSession',
+        value: function clearSession() {
+            //清楚开始之前的数据
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).count = 0;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).frameNum = 0;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).isShoudown = false;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).timer = null;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'pipeArr', this).splice(0, _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'pipeArr', this).length);
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'AABB', this).top = 0;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'AABB', this).left = 0;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'AABB', this).bottom = 0;
+            _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'AABB', this).right = 0;
         }
     }]);
 
@@ -17651,7 +17667,7 @@ var util = function (_canvas) {
 exports.default = util;
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17681,22 +17697,22 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var ground = function (_canvas) {
-    _inherits(ground, _canvas);
+var backGround = function (_canvas) {
+    _inherits(backGround, _canvas);
 
-    function ground() {
-        _classCallCheck(this, ground);
+    function backGround() {
+        _classCallCheck(this, backGround);
 
-        var _this = _possibleConstructorReturn(this, (ground.__proto__ || Object.getPrototypeOf(ground)).call(this));
+        var _this = _possibleConstructorReturn(this, (backGround.__proto__ || Object.getPrototypeOf(backGround)).call(this));
 
-        _this.speed = 2;
-        _this.width = _get(ground.prototype.__proto__ || Object.getPrototypeOf(ground.prototype), 'resources', _this).land.width; //地面图的宽
-        _this.height = _get(ground.prototype.__proto__ || Object.getPrototypeOf(ground.prototype), 'resources', _this).land.height; //地面图的高
+        _this.speed = 1;
+        _this.width = _get(backGround.prototype.__proto__ || Object.getPrototypeOf(backGround.prototype), 'resources', _this).bg_day.width; //背景图的宽
+        _this.height = _get(backGround.prototype.__proto__ || Object.getPrototypeOf(backGround.prototype), 'resources', _this).bg_day.height; //背景图的高
         _this.x = 0;
         return _this;
     }
 
-    _createClass(ground, [{
+    _createClass(backGround, [{
         key: 'run',
         value: function run() {
             this.x -= this.speed;
@@ -17705,18 +17721,96 @@ var ground = function (_canvas) {
     }, {
         key: 'render',
         value: function render() {
-            var landHeight = this.canvas.height - this.canvas.height * _data2.default.ScreenRadio - this.height;
+            var skyHeight = this.canvas.height * _data2.default.ScreenRadio - 396; //背景图天空到地面的高度
 
-            this.ctx.drawImage(this.resources.land, this.x, this.canvas.height * _data2.default.ScreenRadio);
-            this.ctx.drawImage(this.resources.land, this.x + this.width, this.canvas.height * _data2.default.ScreenRadio);
-            this.ctx.drawImage(this.resources.land, this.x + this.width * 2, this.canvas.height * _data2.default.ScreenRadio);
+            this.ctx.drawImage(this.resources.bg_day, this.x, skyHeight);
+            this.ctx.drawImage(this.resources.bg_day, this.x + this.width, skyHeight);
+            this.ctx.drawImage(this.resources.bg_day, this.x + this.width * 2, skyHeight);
 
-            this.ctx.fillStyle = "#DED895"; //ground
-            this.ctx.fillRect(0, this.canvas.height * _data2.default.ScreenRadio + this.height - 1, this.canvas.width, landHeight + 1);
+            this.ctx.fillStyle = "#4EC0CA"; //sky
+            this.ctx.fillRect(0, 0, this.canvas.width, skyHeight);
         }
     }]);
 
-    return ground;
+    return backGround;
+}(_canvas3.default);
+
+exports.default = backGround;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+        value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _canvas2 = __webpack_require__(0);
+
+var _canvas3 = _interopRequireDefault(_canvas2);
+
+var _data = __webpack_require__(1);
+
+var _data2 = _interopRequireDefault(_data);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ground = function (_canvas) {
+        _inherits(ground, _canvas);
+
+        function ground() {
+                _classCallCheck(this, ground);
+
+                var _this = _possibleConstructorReturn(this, (ground.__proto__ || Object.getPrototypeOf(ground)).call(this));
+
+                _this.speed = 2;
+                _this.width = _get(ground.prototype.__proto__ || Object.getPrototypeOf(ground.prototype), 'resources', _this).land.width; //地面图的宽
+                _this.height = _get(ground.prototype.__proto__ || Object.getPrototypeOf(ground.prototype), 'resources', _this).land.height; //地面图的高
+                _this.x = 0;
+                return _this;
+        }
+
+        _createClass(ground, [{
+                key: 'run',
+                value: function run() {
+                        this.x -= this.speed;
+                        if (this.x <= -this.canvas.width) this.x = 0;
+
+                        //碰撞监测 用地面监测小鸟
+                        if (this.canvas.height * _data2.default.ScreenRadio < _get(ground.prototype.__proto__ || Object.getPrototypeOf(ground.prototype), 'AABB', this).bottom) this.msg.isShoudown = true;
+                }
+        }, {
+                key: 'render',
+                value: function render() {
+                        var landHeight = this.canvas.height - this.canvas.height * _data2.default.ScreenRadio - this.height;
+
+                        this.ctx.drawImage(this.resources.land, this.x, this.canvas.height * _data2.default.ScreenRadio);
+                        this.ctx.drawImage(this.resources.land, this.x + this.width, this.canvas.height * _data2.default.ScreenRadio);
+                        this.ctx.drawImage(this.resources.land, this.x + this.width * 2, this.canvas.height * _data2.default.ScreenRadio);
+
+                        this.ctx.fillStyle = "#DED895"; //ground
+                        this.ctx.fillRect(0, this.canvas.height * _data2.default.ScreenRadio + this.height - 1, this.canvas.width, landHeight + 1);
+
+                        this.ctx.fillStyle = "#666"; //author
+                        this.ctx.font = "12px serif";
+                        this.ctx.fillText('author by 傅全猛', this.canvas.width - 100, this.canvas.height - 20);
+                }
+        }]);
+
+        return ground;
 }(_canvas3.default);
 
 exports.default = ground;
@@ -17767,18 +17861,26 @@ var pipe = function (_canvas) {
         _this.y_up = _this.canvas.height * _data2.default.ScreenRadio + _this.y_down - _data2.default.Gap;
         _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'pipeArr', _this).push(_this);
         _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'pipeArr', _this).length > 4 && _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'pipeArr', _this).shift();
-        // this.clickEvent()
+        _this.isPass = false;
         return _this;
     }
-    // clickTest(){
-    //     console.log('pie')
-    // }
-
 
     _createClass(pipe, [{
         key: 'run',
         value: function run() {
             this.x -= this.speed;
+
+            //碰撞监测 用管子监测小鸟 
+            if (this.x < _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'AABB', this).right && this.x + _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'resources', this).pipe_down.width > _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'AABB', this).left && (_get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'resources', this).pipe_down.height + this.y_down > _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'AABB', this).top || this.y_up < _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'AABB', this).bottom)) {
+                this.msg.isShoudown = true;
+                // console.log(this.canvas.height * userData.ScreenRadio)
+                // console.log('上管子的高' + (super.resources.pipe_down.height + this.y_down))
+                // console.log('xia管子的y' + (this.y_up))
+            }
+            if (_get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'AABB', this).left > this.x + _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'resources', this).pipe_down.width && !this.isPass) {
+                _get(pipe.prototype.__proto__ || Object.getPrototypeOf(pipe.prototype), 'msg', this).count++;
+                this.isPass = true;
+            }
         }
     }, {
         key: 'render',
@@ -17836,6 +17938,7 @@ var bird = function (_canvas) {
         _this.birdArr = ['bird' + _this.random + '_0', 'bird' + _this.random + '_1', 'bird' + _this.random + '_2']; //鸟数组
         _this.wingIndex = 0; //鸟翅膀编号
         _this.birdFno = 0; //鸟帧编号
+
         _this.deg = 0; //鸟角度
         _this.birdWidth = _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', _this).bird0_0.width;
         _this.birdHeight = _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', _this).bird0_0.height;
@@ -17849,30 +17952,38 @@ var bird = function (_canvas) {
     _createClass(bird, [{
         key: 'run',
         value: function run() {
-            this.frameNum[0] % 20 == 0 && this.wingIndex++;
-            if (this.wingIndex > 2) this.wingIndex = 0;
+            if (!this.msg.isShoudown) {
 
-            //鸟要掉落
-            this.birdFno++;
-            this.deg += 0.05;
+                this.msg.frameNum % 20 == 0 && this.wingIndex++;
+                if (this.wingIndex > 2) this.wingIndex = 0;
 
-            if (!this.isClick) {
-                //没有点击
-                this.y += this.birdFno * 0.5;
-            } else {
-                //点击
-                this.y -= (_data2.default.toUpSize - this.birdFno) * 0.5;
-                if (this.birdFno > _data2.default.toUpSize) this.isClick = true; //点击后上升速度慢慢变慢直到没有速度则变为true
+                //鸟要掉落
+                this.birdFno++;
+                this.deg += 0.05;
+
+                if (!this.isClick) {
+                    //没有点击
+                    this.y += this.birdFno * _data2.default.toUpHeightRadio;
+                } else {
+                    //点击
+                    this.y -= (_data2.default.toUpSize - this.birdFno) * _data2.default.toUpHeightRadio;
+                    if (this.birdFno > _data2.default.toUpSize) this.isClick = true; //点击后上升速度慢慢变慢直到没有速度则变为true
+                }
+                if (this.deg > 1.6) this.deg = 1.6; //保证头不会往后偏
+
+                //AABB盒
+                _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).top = this.y - 12;
+                _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).bottom = this.y + 12;
+                _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).right = this.x + 17;
+                _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).left = this.x - 17;
             }
-            if (this.deg > 1.6) this.deg = 1.6; //保证头不会往后偏
         }
     }, {
         key: 'render',
         value: function render() {
-
             var step = [this.birdArr[this.wingIndex]][0];
             this.ctx.save();
-            this.ctx.translate(this.x - this.birdWidth / 2, this.y - this.birdHeight / 2);
+            this.ctx.translate(this.x, this.y);
             this.ctx.rotate(this.deg);
             this.ctx.drawImage(_get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', this)[step], -this.birdWidth / 2, -this.birdHeight / 2);
             this.ctx.restore();
@@ -17880,12 +17991,6 @@ var bird = function (_canvas) {
     }, {
         key: 'toUp',
         value: function toUp() {
-            // this.canvas.onclick = (e) => {
-            //     e.preventDefault();
-            //     e.stopPropagation();
-
-
-            // }
             this.isClick = true;
             this.deg = -0.6; //鸟头瞬间抬起
             this.birdFno = 0; //重置鸟帧 为了实现加速度为负的上升计算
@@ -17901,7 +18006,7 @@ exports.default = bird;
 /* 14 */
 /***/ (function(module) {
 
-module.exports = {"images":[{"name":"bg_day","width":"288","height":"512"},{"name":"bg_night","width":"48","height":"48"},{"name":"bird0_0","width":"48","height":"48"},{"name":"bird0_1","width":"48","height":"48"},{"name":"bird0_2","width":"48","height":"48"},{"name":"bird1_0","width":"48","height":"48"},{"name":"bird1_1","width":"48","height":"48"},{"name":"bird1_2","width":"48","height":"48"},{"name":"bird2_0","width":"48","height":"48"},{"name":"bird2_1","width":"48","height":"48"},{"name":"bird2_2","width":"48","height":"48"},{"name":"land","width":"336","height":"112"},{"name":"pipe_down","width":"52","height":"320"},{"name":"pipe_up","width":"52","height":"320"}]};
+module.exports = {"images":[{"name":"bg_day","width":"288","height":"512"},{"name":"bg_night","width":"48","height":"48"},{"name":"bird0_0","width":"48","height":"48"},{"name":"bird0_1","width":"48","height":"48"},{"name":"bird0_2","width":"48","height":"48"},{"name":"bird1_0","width":"48","height":"48"},{"name":"bird1_1","width":"48","height":"48"},{"name":"bird1_2","width":"48","height":"48"},{"name":"bird2_0","width":"48","height":"48"},{"name":"bird2_1","width":"48","height":"48"},{"name":"bird2_2","width":"48","height":"48"},{"name":"land","width":"336","height":"112"},{"name":"pipe_down","width":"52","height":"320"},{"name":"pipe_up","width":"52","height":"320"},{"name":"num0","width":"24","height":"44"},{"name":"num1","width":"24","height":"44"},{"name":"num2","width":"24","height":"44"},{"name":"num3","width":"24","height":"44"},{"name":"num4","width":"24","height":"44"},{"name":"num5","width":"24","height":"44"},{"name":"num6","width":"24","height":"44"},{"name":"num7","width":"24","height":"44"},{"name":"num8","width":"24","height":"44"},{"name":"num9","width":"24","height":"44"},{"name":"boom","width":"86","height":"143"},{"name":"text_game_over","width":"204","height":"54"}]};
 
 /***/ }),
 /* 15 */
@@ -17925,32 +18030,32 @@ var map = {
 	"./blink_00.png": 30,
 	"./blink_01.png": 31,
 	"./blink_02.png": 32,
-	"./brand_copyright.png": 33,
-	"./button_menu.png": 34,
-	"./button_ok.png": 35,
-	"./button_pause.png": 36,
-	"./button_play.png": 37,
-	"./button_rate.png": 38,
-	"./button_resume.png": 39,
-	"./button_score.png": 40,
-	"./button_share.png": 41,
-	"./font_048.png": 42,
-	"./font_049.png": 43,
-	"./font_050.png": 44,
-	"./font_051.png": 45,
-	"./font_052.png": 46,
-	"./font_053.png": 47,
-	"./font_054.png": 48,
-	"./font_055.png": 49,
-	"./font_056.png": 50,
-	"./font_057.png": 51,
-	"./land.png": 52,
-	"./login.e1cae.png": 53,
-	"./medals_0.png": 54,
-	"./medals_1.png": 55,
-	"./medals_2.png": 56,
-	"./medals_3.png": 57,
-	"./new.png": 58,
+	"./boom.png": 33,
+	"./brand_copyright.png": 34,
+	"./button_menu.png": 35,
+	"./button_ok.png": 36,
+	"./button_pause.png": 37,
+	"./button_play.png": 38,
+	"./button_rate.png": 39,
+	"./button_resume.png": 40,
+	"./button_score.png": 41,
+	"./button_share.png": 42,
+	"./land.png": 43,
+	"./medals_0.png": 44,
+	"./medals_1.png": 45,
+	"./medals_2.png": 46,
+	"./medals_3.png": 47,
+	"./new.png": 48,
+	"./num0.png": 49,
+	"./num1.png": 50,
+	"./num2.png": 51,
+	"./num3.png": 52,
+	"./num4.png": 53,
+	"./num5.png": 54,
+	"./num6.png": 55,
+	"./num7.png": 56,
+	"./num8.png": 57,
+	"./num9.png": 58,
 	"./number_context_00.png": 59,
 	"./number_context_01.png": 60,
 	"./number_context_02.png": 61,
@@ -18110,157 +18215,157 @@ module.exports = __webpack_require__.p + "img/blink_02.e611d.png";
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/brand_copyright.94eb4.png";
+module.exports = __webpack_require__.p + "img/boom.72790.png";
 
 /***/ }),
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_menu.7d7ea.png";
+module.exports = __webpack_require__.p + "img/brand_copyright.94eb4.png";
 
 /***/ }),
 /* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_ok.bbae6.png";
+module.exports = __webpack_require__.p + "img/button_menu.7d7ea.png";
 
 /***/ }),
 /* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_pause.fd6fd.png";
+module.exports = __webpack_require__.p + "img/button_ok.bbae6.png";
 
 /***/ }),
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_play.c50fa.png";
+module.exports = __webpack_require__.p + "img/button_pause.fd6fd.png";
 
 /***/ }),
 /* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_rate.552ef.png";
+module.exports = __webpack_require__.p + "img/button_play.c50fa.png";
 
 /***/ }),
 /* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_resume.dd48f.png";
+module.exports = __webpack_require__.p + "img/button_rate.552ef.png";
 
 /***/ }),
 /* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_score.12e7e.png";
+module.exports = __webpack_require__.p + "img/button_resume.dd48f.png";
 
 /***/ }),
 /* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_share.f314d.png";
+module.exports = __webpack_require__.p + "img/button_score.12e7e.png";
 
 /***/ }),
 /* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_048.0b190.png";
+module.exports = __webpack_require__.p + "img/button_share.f314d.png";
 
 /***/ }),
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_049.35018.png";
+module.exports = __webpack_require__.p + "img/land.ab915.png";
 
 /***/ }),
 /* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_050.6d4b7.png";
+module.exports = __webpack_require__.p + "img/medals_0.f8b2d.png";
 
 /***/ }),
 /* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_051.569b7.png";
+module.exports = __webpack_require__.p + "img/medals_1.f4015.png";
 
 /***/ }),
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_052.7ce57.png";
+module.exports = __webpack_require__.p + "img/medals_2.6696e.png";
 
 /***/ }),
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_053.23ca8.png";
+module.exports = __webpack_require__.p + "img/medals_3.e1d07.png";
 
 /***/ }),
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_054.6df65.png";
+module.exports = __webpack_require__.p + "img/new.d83ed.png";
 
 /***/ }),
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_055.73991.png";
+module.exports = __webpack_require__.p + "img/num0.0b190.png";
 
 /***/ }),
 /* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_056.b97c3.png";
+module.exports = __webpack_require__.p + "img/num1.35018.png";
 
 /***/ }),
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/font_057.23219.png";
+module.exports = __webpack_require__.p + "img/num2.6d4b7.png";
 
 /***/ }),
 /* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/land.ab915.png";
+module.exports = __webpack_require__.p + "img/num3.569b7.png";
 
 /***/ }),
 /* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/login.e1cae.e1cae.png";
+module.exports = __webpack_require__.p + "img/num4.7ce57.png";
 
 /***/ }),
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_0.f8b2d.png";
+module.exports = __webpack_require__.p + "img/num5.23ca8.png";
 
 /***/ }),
 /* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_1.f4015.png";
+module.exports = __webpack_require__.p + "img/num6.6df65.png";
 
 /***/ }),
 /* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_2.6696e.png";
+module.exports = __webpack_require__.p + "img/num7.73991.png";
 
 /***/ }),
 /* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_3.e1d07.png";
+module.exports = __webpack_require__.p + "img/num8.b97c3.png";
 
 /***/ }),
 /* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/new.d83ed.png";
+module.exports = __webpack_require__.p + "img/num9.23219.png";
 
 /***/ }),
 /* 59 */

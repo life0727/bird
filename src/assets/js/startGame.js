@@ -9,22 +9,26 @@ import bird from '../role/bird'
 class startGame extends canvas{
     constructor(){
         super();    
+        this.begin() //绑定事件
         this.start()
     }
     start(){
+
+        this.util = new util();
+        this.util.clearSession();
+
         this.background = new background();
         this.ground = new ground();
-        this.util = new util();
         this.bird = new bird();
-        this.timer = setInterval(()=>{
+
+        super.msg.timer = setInterval(()=>{
             this.util.clear();
+
             super.msg.frameNum ++;
             
             this.background.render();
             this.background.run();
 
-            this.bird.render();
-            this.bird.run();
 
             super.msg.frameNum % userData.frequency == 0 && new pipe();       
     
@@ -38,9 +42,16 @@ class startGame extends canvas{
             this.ground.render();
             this.ground.run();
             
-            if(this.msg.isShoudown) clearInterval(this.timer);
             
-            this.ctx.fillText(super.msg.frameNum,10,10);
+
+            this.bird.render();
+            this.bird.run();
+
+            if(super.msg.isShoudown) this.util.boom();
+
+            this.ctx.fillStyle = "#333";
+            this.ctx.font = "12px serif";
+            this.ctx.fillText(`fps:${1000 / userData.FrameNumber}`,10,10);
         },userData.FrameNumber)
     }
 }

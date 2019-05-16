@@ -26,7 +26,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack",
     "build": "webpack --config webpack.prod.config.js",
-    "dev-server": "webpack-dev-server --config webpack.config.js"
+    "dev-server": "webpack-dev-server --host 0.0.0.0 --config webpack.config.js"
   },
   "author": "liife丶",
   "license": "ISC"
