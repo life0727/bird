@@ -49,6 +49,10 @@ module.exports = {
                         //publicPath: "../"
                     }
                 }]
+            },
+            {
+                test: /\.mp3$/,
+                loader: 'file-loader'
             }
         ]
     },

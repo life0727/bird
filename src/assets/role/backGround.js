@@ -21,7 +21,7 @@ class backGround extends canvas{
         this.ctx.drawImage(this.resources.bg_day,this.x + this.width * 2,skyHeight);
 
         this.ctx.fillStyle = "#4EC0CA";//sky
-        this.ctx.fillRect(0,0,this.canvas.width,skyHeight)
+        this.ctx.fillRect(0,0,this.canvas.width,skyHeight + 1)
 
     }
 }

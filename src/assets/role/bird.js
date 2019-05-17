@@ -8,18 +8,23 @@ class bird extends canvas{
         this.birdArr = [`bird${this.random}_0`,`bird${this.random}_1`,`bird${this.random}_2`];//鸟数组
         this.wingIndex = 0;//鸟翅膀编号
         this.birdFno = 0;//鸟帧编号
-        
+        this.foxPlaytime = 0 //音频编号
         this.deg = 0;//鸟角度
         this.birdWidth = super.resources.bird0_0.width;
         this.birdHeight = super.resources.bird0_0.height;
         this.x = this.canvas.width / 2 - this.birdWidth / 2;
         this.y = this.canvas.height / 2 - 200;
         this.isClick = false;
+        
         super.clickEvent() //绑定事件
     }
     run(){
         if(!this.msg.isShoudown){
-            
+
+            //增加音效
+            this.foxPlaytime += 0.1
+            if(this.foxPlaytime >= 1) super.resources.fox.pause(),super.resources.fox.currentTime = 0;
+
             this.msg.frameNum % 20 == 0 && this.wingIndex ++;
             if(this.wingIndex > 2) this.wingIndex = 0;
 
@@ -40,6 +45,8 @@ class bird extends canvas{
             super.AABB.bottom = this.y + 12;
             super.AABB.right = this.x + 17;
             super.AABB.left = this.x - 17;
+        }else{ //音频福利
+            super.resources.fox.play();
         }
         
     }
@@ -52,10 +59,18 @@ class bird extends canvas{
         this.ctx.restore();
     }
     toUp(){
+        
         this.isClick = true;
         this.deg = -0.6;//鸟头瞬间抬起
         this.birdFno = 0;//重置鸟帧 为了实现加速度为负的上升计算
 
+        //增加音效
+        if(!this.msg.isShoudown){
+            this.foxPlaytime = 0;
+            super.resources.fox.play();
+        }
+        
+        
     }
 }
 

@@ -3,6 +3,7 @@ import startGame from './startGame'
 import canvas from '../role/canvas'
 
 const json = require('../json/resources.json') 
+const fox = require('../mp3/5613.mp3') 
 
 class init extends canvas{
     constructor() {
@@ -22,6 +23,10 @@ class init extends canvas{
     }
     fetchResources(){
         return new Promise((res)=>{
+            //音效
+            super.resources.fox = document.querySelector('audio');
+            super.resources.fox.src = fox;
+            
             json.images.forEach(element => {
                 super.resources[element.name] = new Image();
                 super.resources[element.name].width = element.width;

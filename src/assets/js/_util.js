@@ -42,7 +42,7 @@ class util extends canvas{
 
         this.ctx.fillStyle = 'yellow';
         this.ctx.font = "38px serif";
-        this.ctx.fillText('按f10重开',this.gameOverX + 10,this.gameOverY + super.resources.text_game_over.height + 38); 
+        this.ctx.fillText('按f4重开',this.gameOverX + 10,this.gameOverY + super.resources.text_game_over.height + 38); 
 
 
     }

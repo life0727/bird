@@ -115,7 +115,7 @@ var canvas = function () {
             this.canvas.onclick = function () {
                 return _this.toUp();
             };
-            //this.canvas.onkeydown = (e) => this.toUp(e)
+            //this.canvas.addEventListener('touchstart',() => this.toUp()) // 手机
             window.addEventListener('keydown', function (e) {
                 return e.code == 'Space' && _this.toUp(e);
             });
@@ -126,8 +126,8 @@ var canvas = function () {
             var _this2 = this;
 
             window.addEventListener('keydown', function (e) {
-                return e.code == 'F10' && _this2.msg.isShoudown && _this2.start();
-            }); //CapsLock
+                return e.code == 'F4' && _this2.msg.isShoudown && _this2.start();
+            });
         }
     }]);
 
@@ -164,8 +164,8 @@ Object.defineProperty(exports, "__esModule", {
 var userData = {
     "FrameNumber": 20, //帧数分之一
     "ScreenRadio": 0.75, //画布屏幕上下占比
-    "Gap": 100, //管子间的空隙  50 - 110之间 由易到难
-    "frequency": 120, //管子出现的频率  100 - 150之间 由难到易
+    "Gap": 120, //管子间的空隙  50 - 110之间 由易到难
+    "frequency": 100, //管子出现的频率  100 - 150之间 由难到易
     "toUpSize": 20, //点击小鸟后上升的帧数参数 越大上升的越高
     "toUpHeightRadio": 0.4 //小鸟上升下落速度的参数 越大越快
 };
@@ -17393,6 +17393,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var json = __webpack_require__(14);
+var fox = __webpack_require__(15);
 
 var init = function (_canvas) {
     _inherits(init, _canvas);
@@ -17425,11 +17426,15 @@ var init = function (_canvas) {
             var _this2 = this;
 
             return new Promise(function (res) {
+                //音效
+                _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2).fox = document.querySelector('audio');
+                _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2).fox.src = fox;
+
                 json.images.forEach(function (element) {
                     _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2)[element.name] = new Image();
                     _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2)[element.name].width = element.width;
                     _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2)[element.name].height = element.height;
-                    _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2)[element.name].src = __webpack_require__(15)("./" + element.name + ".png"); //要先require不然打包会报错
+                    _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2)[element.name].src = __webpack_require__(16)("./" + element.name + ".png"); //要先require不然打包会报错
                     _get(init.prototype.__proto__ || Object.getPrototypeOf(init.prototype), 'resources', _this2)[element.name].onload = function () {
                         res();
                     };
@@ -17514,7 +17519,7 @@ var startGame = function (_canvas) {
                         value: function start() {
                                     var _this2 = this;
 
-                                    this.util = new _util2.default();
+                                    this.util = new _util2.default(); //加载工具类
                                     this.util.clearSession();
 
                                     this.background = new _backGround2.default();
@@ -17522,6 +17527,7 @@ var startGame = function (_canvas) {
                                     this.bird = new _bird2.default();
 
                                     _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'msg', this).timer = setInterval(function () {
+
                                                 _this2.util.clear();
 
                                                 _get(startGame.prototype.__proto__ || Object.getPrototypeOf(startGame.prototype), 'msg', _this2).frameNum++;
@@ -17615,7 +17621,7 @@ var util = function (_canvas) {
             var score = _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'msg', this).count.toString();
             var numWidth = _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).num0.width + 10;
             for (var i = 0; i < score.length; i++) {
-                this.ctx.drawImage(_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this)['num' + score[i]], this.canvas.width / 2 - numWidth * score.length / 2 + i * numWidth, 100);
+                this.ctx.drawImage(_get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this)['num' + score[i]], this.canvas.width / 2 - numWidth * score.length / 2 + i * numWidth, 50);
             }
         }
     }, {
@@ -17643,7 +17649,7 @@ var util = function (_canvas) {
 
             this.ctx.fillStyle = 'yellow';
             this.ctx.font = "38px serif";
-            this.ctx.fillText('按f10重开', this.gameOverX + 10, this.gameOverY + _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).text_game_over.height + 38);
+            this.ctx.fillText('按f4重开', this.gameOverX + 10, this.gameOverY + _get(util.prototype.__proto__ || Object.getPrototypeOf(util.prototype), 'resources', this).text_game_over.height + 38);
         }
     }, {
         key: 'clearSession',
@@ -17728,7 +17734,7 @@ var backGround = function (_canvas) {
             this.ctx.drawImage(this.resources.bg_day, this.x + this.width * 2, skyHeight);
 
             this.ctx.fillStyle = "#4EC0CA"; //sky
-            this.ctx.fillRect(0, 0, this.canvas.width, skyHeight);
+            this.ctx.fillRect(0, 0, this.canvas.width, skyHeight + 1);
         }
     }]);
 
@@ -17806,7 +17812,7 @@ var ground = function (_canvas) {
 
                         this.ctx.fillStyle = "#666"; //author
                         this.ctx.font = "12px serif";
-                        this.ctx.fillText('author by 傅全猛', this.canvas.width - 100, this.canvas.height - 20);
+                        this.ctx.fillText('author by liife', this.canvas.width - 100, this.canvas.height - 20);
                 }
         }]);
 
@@ -17938,13 +17944,14 @@ var bird = function (_canvas) {
         _this.birdArr = ['bird' + _this.random + '_0', 'bird' + _this.random + '_1', 'bird' + _this.random + '_2']; //鸟数组
         _this.wingIndex = 0; //鸟翅膀编号
         _this.birdFno = 0; //鸟帧编号
-
+        _this.foxPlaytime = 0; //音频编号
         _this.deg = 0; //鸟角度
         _this.birdWidth = _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', _this).bird0_0.width;
         _this.birdHeight = _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', _this).bird0_0.height;
         _this.x = _this.canvas.width / 2 - _this.birdWidth / 2;
         _this.y = _this.canvas.height / 2 - 200;
         _this.isClick = false;
+
         _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'clickEvent', _this).call(_this); //绑定事件
         return _this;
     }
@@ -17953,6 +17960,10 @@ var bird = function (_canvas) {
         key: 'run',
         value: function run() {
             if (!this.msg.isShoudown) {
+
+                //增加音效
+                this.foxPlaytime += 0.1;
+                if (this.foxPlaytime >= 1) _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', this).fox.pause(), _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', this).fox.currentTime = 0;
 
                 this.msg.frameNum % 20 == 0 && this.wingIndex++;
                 if (this.wingIndex > 2) this.wingIndex = 0;
@@ -17976,6 +17987,9 @@ var bird = function (_canvas) {
                 _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).bottom = this.y + 12;
                 _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).right = this.x + 17;
                 _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'AABB', this).left = this.x - 17;
+            } else {
+                //音频福利
+                _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', this).fox.play();
             }
         }
     }, {
@@ -17991,9 +18005,16 @@ var bird = function (_canvas) {
     }, {
         key: 'toUp',
         value: function toUp() {
+
             this.isClick = true;
             this.deg = -0.6; //鸟头瞬间抬起
             this.birdFno = 0; //重置鸟帧 为了实现加速度为负的上升计算
+
+            //增加音效
+            if (!this.msg.isShoudown) {
+                this.foxPlaytime = 0;
+                _get(bird.prototype.__proto__ || Object.getPrototypeOf(bird.prototype), 'resources', this).fox.play();
+            }
         }
     }]);
 
@@ -18012,81 +18033,87 @@ module.exports = {"images":[{"name":"bg_day","width":"288","height":"512"},{"nam
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
+module.exports = __webpack_require__.p + "eeb6ff14ca763754bebb9019e58eebb5.mp3";
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var map = {
-	"./9154727.6cd80.png": 16,
-	"./atlas.png": 17,
-	"./bg_day.png": 18,
-	"./bg_night.png": 19,
-	"./bird0_0.png": 20,
-	"./bird0_1.png": 21,
-	"./bird0_2.png": 22,
-	"./bird1_0.png": 23,
-	"./bird1_1.png": 24,
-	"./bird1_2.png": 25,
-	"./bird2_0.png": 26,
-	"./bird2_1.png": 27,
-	"./bird2_2.png": 28,
-	"./black.png": 29,
-	"./blink_00.png": 30,
-	"./blink_01.png": 31,
-	"./blink_02.png": 32,
-	"./boom.png": 33,
-	"./brand_copyright.png": 34,
-	"./button_menu.png": 35,
-	"./button_ok.png": 36,
-	"./button_pause.png": 37,
-	"./button_play.png": 38,
-	"./button_rate.png": 39,
-	"./button_resume.png": 40,
-	"./button_score.png": 41,
-	"./button_share.png": 42,
-	"./land.png": 43,
-	"./medals_0.png": 44,
-	"./medals_1.png": 45,
-	"./medals_2.png": 46,
-	"./medals_3.png": 47,
-	"./new.png": 48,
-	"./num0.png": 49,
-	"./num1.png": 50,
-	"./num2.png": 51,
-	"./num3.png": 52,
-	"./num4.png": 53,
-	"./num5.png": 54,
-	"./num6.png": 55,
-	"./num7.png": 56,
-	"./num8.png": 57,
-	"./num9.png": 58,
-	"./number_context_00.png": 59,
-	"./number_context_01.png": 60,
-	"./number_context_02.png": 61,
-	"./number_context_03.png": 62,
-	"./number_context_04.png": 63,
-	"./number_context_05.png": 64,
-	"./number_context_06.png": 65,
-	"./number_context_07.png": 66,
-	"./number_context_08.png": 67,
-	"./number_context_09.png": 68,
-	"./number_context_10.png": 69,
-	"./number_score_00.png": 70,
-	"./number_score_01.png": 71,
-	"./number_score_02.png": 72,
-	"./number_score_03.png": 73,
-	"./number_score_04.png": 74,
-	"./number_score_05.png": 75,
-	"./number_score_06.png": 76,
-	"./number_score_07.png": 77,
-	"./number_score_08.png": 78,
-	"./number_score_09.png": 79,
-	"./pipe2_down.png": 80,
-	"./pipe2_up.png": 81,
-	"./pipe_down.png": 82,
-	"./pipe_up.png": 83,
-	"./score_panel.png": 84,
-	"./text_game_over.png": 85,
-	"./text_ready.png": 86,
-	"./title.png": 87,
-	"./tutorial.png": 88,
-	"./white.png": 89
+	"./9154727.6cd80.png": 17,
+	"./atlas.png": 18,
+	"./bg_day.png": 19,
+	"./bg_night.png": 20,
+	"./bird0_0.png": 21,
+	"./bird0_1.png": 22,
+	"./bird0_2.png": 23,
+	"./bird1_0.png": 24,
+	"./bird1_1.png": 25,
+	"./bird1_2.png": 26,
+	"./bird2_0.png": 27,
+	"./bird2_1.png": 28,
+	"./bird2_2.png": 29,
+	"./black.png": 30,
+	"./blink_00.png": 31,
+	"./blink_01.png": 32,
+	"./blink_02.png": 33,
+	"./boom.png": 34,
+	"./brand_copyright.png": 35,
+	"./button_menu.png": 36,
+	"./button_ok.png": 37,
+	"./button_pause.png": 38,
+	"./button_play.png": 39,
+	"./button_rate.png": 40,
+	"./button_resume.png": 41,
+	"./button_score.png": 42,
+	"./button_share.png": 43,
+	"./land.png": 44,
+	"./medals_0.png": 45,
+	"./medals_1.png": 46,
+	"./medals_2.png": 47,
+	"./medals_3.png": 48,
+	"./new.png": 49,
+	"./num0.png": 50,
+	"./num1.png": 51,
+	"./num2.png": 52,
+	"./num3.png": 53,
+	"./num4.png": 54,
+	"./num5.png": 55,
+	"./num6.png": 56,
+	"./num7.png": 57,
+	"./num8.png": 58,
+	"./num9.png": 59,
+	"./number_context_00.png": 60,
+	"./number_context_01.png": 61,
+	"./number_context_02.png": 62,
+	"./number_context_03.png": 63,
+	"./number_context_04.png": 64,
+	"./number_context_05.png": 65,
+	"./number_context_06.png": 66,
+	"./number_context_07.png": 67,
+	"./number_context_08.png": 68,
+	"./number_context_09.png": 69,
+	"./number_context_10.png": 70,
+	"./number_score_00.png": 71,
+	"./number_score_01.png": 72,
+	"./number_score_02.png": 73,
+	"./number_score_03.png": 74,
+	"./number_score_04.png": 75,
+	"./number_score_05.png": 76,
+	"./number_score_06.png": 77,
+	"./number_score_07.png": 78,
+	"./number_score_08.png": 79,
+	"./number_score_09.png": 80,
+	"./pipe2_down.png": 81,
+	"./pipe2_up.png": 82,
+	"./pipe_down.png": 83,
+	"./pipe_up.png": 84,
+	"./score_panel.png": 85,
+	"./text_game_over.png": 86,
+	"./text_ready.png": 87,
+	"./title.png": 88,
+	"./tutorial.png": 89,
+	"./white.png": 90
 };
 
 
@@ -18107,448 +18134,448 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 15;
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "img/9154727.6cd80.6cd80.png";
+webpackContext.id = 16;
 
 /***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/atlas.fc2e4.png";
+module.exports = __webpack_require__.p + "img/9154727.6cd80.6cd80.png";
 
 /***/ }),
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bg_day.4fd39.png";
+module.exports = __webpack_require__.p + "img/atlas.fc2e4.png";
 
 /***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bg_night.8bec1.png";
+module.exports = __webpack_require__.p + "img/bg_day.4fd39.png";
 
 /***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird0_0.28b45.png";
+module.exports = __webpack_require__.p + "img/bg_night.8bec1.png";
 
 /***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird0_1.077bf.png";
+module.exports = __webpack_require__.p + "img/bird0_0.28b45.png";
 
 /***/ }),
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird0_2.08888.png";
+module.exports = __webpack_require__.p + "img/bird0_1.077bf.png";
 
 /***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird1_0.ded02.png";
+module.exports = __webpack_require__.p + "img/bird0_2.08888.png";
 
 /***/ }),
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird1_1.8f712.png";
+module.exports = __webpack_require__.p + "img/bird1_0.ded02.png";
 
 /***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird1_2.210cf.png";
+module.exports = __webpack_require__.p + "img/bird1_1.8f712.png";
 
 /***/ }),
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird2_0.a22d1.png";
+module.exports = __webpack_require__.p + "img/bird1_2.210cf.png";
 
 /***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird2_1.2e392.png";
+module.exports = __webpack_require__.p + "img/bird2_0.a22d1.png";
 
 /***/ }),
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/bird2_2.d2e40.png";
+module.exports = __webpack_require__.p + "img/bird2_1.2e392.png";
 
 /***/ }),
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/black.595dc.png";
+module.exports = __webpack_require__.p + "img/bird2_2.d2e40.png";
 
 /***/ }),
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/blink_00.59762.png";
+module.exports = __webpack_require__.p + "img/black.595dc.png";
 
 /***/ }),
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/blink_01.a8e58.png";
+module.exports = __webpack_require__.p + "img/blink_00.59762.png";
 
 /***/ }),
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/blink_02.e611d.png";
+module.exports = __webpack_require__.p + "img/blink_01.a8e58.png";
 
 /***/ }),
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/boom.72790.png";
+module.exports = __webpack_require__.p + "img/blink_02.e611d.png";
 
 /***/ }),
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/brand_copyright.94eb4.png";
+module.exports = __webpack_require__.p + "img/boom.72790.png";
 
 /***/ }),
 /* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_menu.7d7ea.png";
+module.exports = __webpack_require__.p + "img/brand_copyright.94eb4.png";
 
 /***/ }),
 /* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_ok.bbae6.png";
+module.exports = __webpack_require__.p + "img/button_menu.7d7ea.png";
 
 /***/ }),
 /* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_pause.fd6fd.png";
+module.exports = __webpack_require__.p + "img/button_ok.bbae6.png";
 
 /***/ }),
 /* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_play.c50fa.png";
+module.exports = __webpack_require__.p + "img/button_pause.fd6fd.png";
 
 /***/ }),
 /* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_rate.552ef.png";
+module.exports = __webpack_require__.p + "img/button_play.c50fa.png";
 
 /***/ }),
 /* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_resume.dd48f.png";
+module.exports = __webpack_require__.p + "img/button_rate.552ef.png";
 
 /***/ }),
 /* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_score.12e7e.png";
+module.exports = __webpack_require__.p + "img/button_resume.dd48f.png";
 
 /***/ }),
 /* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/button_share.f314d.png";
+module.exports = __webpack_require__.p + "img/button_score.12e7e.png";
 
 /***/ }),
 /* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/land.ab915.png";
+module.exports = __webpack_require__.p + "img/button_share.f314d.png";
 
 /***/ }),
 /* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_0.f8b2d.png";
+module.exports = __webpack_require__.p + "img/land.ab915.png";
 
 /***/ }),
 /* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_1.f4015.png";
+module.exports = __webpack_require__.p + "img/medals_0.f8b2d.png";
 
 /***/ }),
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_2.6696e.png";
+module.exports = __webpack_require__.p + "img/medals_1.f4015.png";
 
 /***/ }),
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/medals_3.e1d07.png";
+module.exports = __webpack_require__.p + "img/medals_2.6696e.png";
 
 /***/ }),
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/new.d83ed.png";
+module.exports = __webpack_require__.p + "img/medals_3.e1d07.png";
 
 /***/ }),
 /* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num0.0b190.png";
+module.exports = __webpack_require__.p + "img/new.d83ed.png";
 
 /***/ }),
 /* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num1.35018.png";
+module.exports = __webpack_require__.p + "img/num0.0b190.png";
 
 /***/ }),
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num2.6d4b7.png";
+module.exports = __webpack_require__.p + "img/num1.35018.png";
 
 /***/ }),
 /* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num3.569b7.png";
+module.exports = __webpack_require__.p + "img/num2.6d4b7.png";
 
 /***/ }),
 /* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num4.7ce57.png";
+module.exports = __webpack_require__.p + "img/num3.569b7.png";
 
 /***/ }),
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num5.23ca8.png";
+module.exports = __webpack_require__.p + "img/num4.7ce57.png";
 
 /***/ }),
 /* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num6.6df65.png";
+module.exports = __webpack_require__.p + "img/num5.23ca8.png";
 
 /***/ }),
 /* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num7.73991.png";
+module.exports = __webpack_require__.p + "img/num6.6df65.png";
 
 /***/ }),
 /* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num8.b97c3.png";
+module.exports = __webpack_require__.p + "img/num7.73991.png";
 
 /***/ }),
 /* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/num9.23219.png";
+module.exports = __webpack_require__.p + "img/num8.b97c3.png";
 
 /***/ }),
 /* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_00.57fe2.png";
+module.exports = __webpack_require__.p + "img/num9.23219.png";
 
 /***/ }),
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_01.30281.png";
+module.exports = __webpack_require__.p + "img/number_context_00.57fe2.png";
 
 /***/ }),
 /* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_02.89896.png";
+module.exports = __webpack_require__.p + "img/number_context_01.30281.png";
 
 /***/ }),
 /* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_03.ad39e.png";
+module.exports = __webpack_require__.p + "img/number_context_02.89896.png";
 
 /***/ }),
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_04.05476.png";
+module.exports = __webpack_require__.p + "img/number_context_03.ad39e.png";
 
 /***/ }),
 /* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_05.1b680.png";
+module.exports = __webpack_require__.p + "img/number_context_04.05476.png";
 
 /***/ }),
 /* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_06.f6a46.png";
+module.exports = __webpack_require__.p + "img/number_context_05.1b680.png";
 
 /***/ }),
 /* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_07.327bd.png";
+module.exports = __webpack_require__.p + "img/number_context_06.f6a46.png";
 
 /***/ }),
 /* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_08.088b6.png";
+module.exports = __webpack_require__.p + "img/number_context_07.327bd.png";
 
 /***/ }),
 /* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_09.fc1ed.png";
+module.exports = __webpack_require__.p + "img/number_context_08.088b6.png";
 
 /***/ }),
 /* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_context_10.9f98e.png";
+module.exports = __webpack_require__.p + "img/number_context_09.fc1ed.png";
 
 /***/ }),
 /* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_00.63c9c.png";
+module.exports = __webpack_require__.p + "img/number_context_10.9f98e.png";
 
 /***/ }),
 /* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_01.a6424.png";
+module.exports = __webpack_require__.p + "img/number_score_00.63c9c.png";
 
 /***/ }),
 /* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_02.8fea0.png";
+module.exports = __webpack_require__.p + "img/number_score_01.a6424.png";
 
 /***/ }),
 /* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_03.3240e.png";
+module.exports = __webpack_require__.p + "img/number_score_02.8fea0.png";
 
 /***/ }),
 /* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_04.905c9.png";
+module.exports = __webpack_require__.p + "img/number_score_03.3240e.png";
 
 /***/ }),
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_05.63f8b.png";
+module.exports = __webpack_require__.p + "img/number_score_04.905c9.png";
 
 /***/ }),
 /* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_06.622c6.png";
+module.exports = __webpack_require__.p + "img/number_score_05.63f8b.png";
 
 /***/ }),
 /* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_07.dc03e.png";
+module.exports = __webpack_require__.p + "img/number_score_06.622c6.png";
 
 /***/ }),
 /* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_08.f1ad5.png";
+module.exports = __webpack_require__.p + "img/number_score_07.dc03e.png";
 
 /***/ }),
 /* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/number_score_09.9dcfb.png";
+module.exports = __webpack_require__.p + "img/number_score_08.f1ad5.png";
 
 /***/ }),
 /* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/pipe2_down.7ab5a.png";
+module.exports = __webpack_require__.p + "img/number_score_09.9dcfb.png";
 
 /***/ }),
 /* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/pipe2_up.7ab5a.png";
+module.exports = __webpack_require__.p + "img/pipe2_down.7ab5a.png";
 
 /***/ }),
 /* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/pipe_down.a71b7.png";
+module.exports = __webpack_require__.p + "img/pipe2_up.7ab5a.png";
 
 /***/ }),
 /* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/pipe_up.7e59b.png";
+module.exports = __webpack_require__.p + "img/pipe_down.a71b7.png";
 
 /***/ }),
 /* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/score_panel.0f2cc.png";
+module.exports = __webpack_require__.p + "img/pipe_up.7e59b.png";
 
 /***/ }),
 /* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/text_game_over.78135.png";
+module.exports = __webpack_require__.p + "img/score_panel.0f2cc.png";
 
 /***/ }),
 /* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/text_ready.84002.png";
+module.exports = __webpack_require__.p + "img/text_game_over.78135.png";
 
 /***/ }),
 /* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/title.15977.png";
+module.exports = __webpack_require__.p + "img/text_ready.84002.png";
 
 /***/ }),
 /* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "img/tutorial.3bd75.png";
+module.exports = __webpack_require__.p + "img/title.15977.png";
 
 /***/ }),
 /* 89 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "img/tutorial.3bd75.png";
+
+/***/ }),
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "img/white.0c49c.png";

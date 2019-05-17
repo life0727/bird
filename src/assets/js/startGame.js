@@ -13,8 +13,8 @@ class startGame extends canvas{
         this.start()
     }
     start(){
-
-        this.util = new util();
+ 
+        this.util = new util(); //加载工具类
         this.util.clearSession();
 
         this.background = new background();
@@ -22,6 +22,7 @@ class startGame extends canvas{
         this.bird = new bird();
 
         super.msg.timer = setInterval(()=>{
+
             this.util.clear();
 
             super.msg.frameNum ++;
@@ -41,8 +42,6 @@ class startGame extends canvas{
 
             this.ground.render();
             this.ground.run();
-            
-            
 
             this.bird.render();
             this.bird.run();

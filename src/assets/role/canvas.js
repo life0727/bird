@@ -7,12 +7,11 @@ class canvas {
     }
     clickEvent(){
         this.canvas.onclick = () => this.toUp();
-        //this.canvas.onkeydown = (e) => this.toUp(e)
-        this.canvas.addEventListener('touchstart',() => this.toUp())
+        //this.canvas.addEventListener('touchstart',() => this.toUp()) // 手机
         window.addEventListener('keydown',(e) => e.code == 'Space' && this.toUp(e))
     }
     begin(){
-        window.addEventListener('keydown',(e) => e.code == 'F10' && this.msg.isShoudown && this.start()); //CapsLock
+        window.addEventListener('keydown',(e) => e.code == 'F4' && this.msg.isShoudown && this.start());
     }
     
 }
